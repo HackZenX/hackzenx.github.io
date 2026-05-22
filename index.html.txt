@@ -1,0 +1,9 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>HackZenX</title>
+</head>
+<body>
+  <h1>HackZenX.com 🚀</h1>
+</body>
+</html>
