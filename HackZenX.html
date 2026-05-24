@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>HackZenX | Information Security</title>
+  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Syne:wght@400;700;800&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --bg: #050a0e;
+      --surface: #0b1318;
+      --accent: #00ffe1;
+      --accent2: #ff3c6e;
+      --accent3: #ffe600;
+      --text: #c8d8e0;
+      --muted: #4a6370;
+      --mono: 'Share Tech Mono', monospace;
+      --sans: 'Syne', sans-serif;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--mono);
+      min-height: 100vh;
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    /* ── Scanline overlay ── */
+    body::before {
+      content: '';
+      pointer-events: none;
+      position: fixed;
+      inset: 0;
+      background: repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 2px,
+        rgba(0,255,225,0.018) 2px,
+        rgba(0,255,225,0.018) 4px
+      );
+      z-index: 999;
+    }
+
+    /* ── Noise grain ── */
+    body::after {
+      content: '';
+      pointer-events: none;
+      position: fixed;
+      inset: 0;
+      opacity: .04;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+      background-size: 128px;
+      z-index: 998;
+    }
+
+    /* ── Grid background ── */
+    .grid-bg {
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(0,255,225,0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0,255,225,0.04) 1px, transparent 1px);
+      background-size: 48px 48px;
+      z-index: 0;
+    }
+
+    /* ── Glowing orbs ── */
+    .orb {
+      position: fixed;
+      border-radius: 50%;
+      filter: blur(120px);
+      pointer-events: none;
+      z-index: 0;
+    }
+    .orb-1 { width: 500px; height: 500px; background: rgba(0,255,225,0.07); top: -150px; left: -150px; }
+    .orb-2 { width: 400px; height: 400px; background: rgba(255,60,110,0.07); bottom: -100px; right: -100px; }
+    .orb-3 { width: 300px; height: 300px; background: rgba(255,230,0,0.05); top: 40%; left: 50%; transform: translate(-50%,-50%); }
+
+    /* ── Layout ── */
+    .wrapper {
+      position: relative;
+      z-index: 1;
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    /* ── Header / Hero ── */
+    header {
+      padding: 80px 0 60px;
+      text-align: center;
+    }
+
+    .badge {
+      display: inline-block;
+      font-size: 11px;
+      letter-spacing: .25em;
+      text-transform: uppercase;
+      color: var(--accent);
+      border: 1px solid rgba(0,255,225,0.3);
+      padding: 5px 14px;
+      border-radius: 2px;
+      margin-bottom: 32px;
+      animation: fadeIn .6s ease both;
+    }
+
+    .logo-wrap {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      margin-bottom: 20px;
+      animation: fadeIn .7s .1s ease both;
+    }
+
+    .logo-icon {
+      width: 56px; height: 56px;
+      position: relative;
+      flex-shrink: 0;
+    }
+
+    .logo-icon svg { width: 100%; height: 100%; }
+
+    h1 {
+      font-family: var(--sans);
+      font-size: clamp(2.4rem, 6vw, 4rem);
+      font-weight: 800;
+      letter-spacing: -.02em;
+      line-height: 1;
+      background: linear-gradient(120deg, #fff 0%, var(--accent) 60%, var(--accent2) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .tagline {
+      font-size: 13px;
+      letter-spacing: .18em;
+      color: var(--muted);
+      text-transform: uppercase;
+      margin-bottom: 40px;
+      animation: fadeIn .8s .2s ease both;
+    }
+
+    /* ── Terminal blurb ── */
+    .terminal {
+      background: var(--surface);
+      border: 1px solid rgba(0,255,225,0.15);
+      border-radius: 6px;
+      padding: 20px 24px;
+      text-align: left;
+      max-width: 600px;
+      margin: 0 auto 64px;
+      animation: fadeIn .9s .3s ease both;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .terminal::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--accent), transparent);
+    }
+
+    .terminal-bar {
+      display: flex;
+      gap: 7px;
+      margin-bottom: 14px;
+    }
+
+    .dot { width: 11px; height: 11px; border-radius: 50%; }
+    .dot-r { background: var(--accent2); }
+    .dot-y { background: var(--accent3); }
+    .dot-g { background: var(--accent); }
+
+    .terminal p { font-size: 13px; line-height: 1.8; color: #7fa8b8; }
+    .terminal .prompt { color: var(--accent); }
+    .terminal .cmd { color: #fff; }
+    .terminal .out  { color: var(--text); padding-left: 14px; }
+
+    .cursor {
+      display: inline-block;
+      width: 8px; height: 14px;
+      background: var(--accent);
+      vertical-align: middle;
+      animation: blink 1s step-end infinite;
+    }
+
+    @keyframes blink { 50% { opacity: 0; } }
+
+    /* ── Section headings ── */
+    .section-label {
+      font-size: 10px;
+      letter-spacing: .3em;
+      color: var(--accent);
+      text-transform: uppercase;
+      margin-bottom: 24px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .section-label::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: rgba(0,255,225,0.15);
+    }
+
+    /* ── Links section ── */
+    .links-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 16px;
+      margin-bottom: 72px;
+      animation: fadeUp .8s .4s ease both;
+    }
+
+    .link-card {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      background: var(--surface);
+      border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 6px;
+      padding: 18px 20px;
+      text-decoration: none;
+      color: var(--text);
+      transition: border-color .2s, transform .2s, box-shadow .2s;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .link-card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, var(--card-accent, var(--accent)) 0%, transparent 60%);
+      opacity: 0;
+      transition: opacity .3s;
+    }
+
+    .link-card:hover { transform: translateY(-3px); border-color: var(--card-accent, var(--accent)); box-shadow: 0 0 24px rgba(0,255,225,0.12); }
+    .link-card:hover::before { opacity: .08; }
+
+    .link-card.linkedin  { --card-accent: #0a66c2; }
+    .link-card.instagram { --card-accent: #e1306c; }
+    .link-card.website   { --card-accent: var(--accent); }
+
+    .card-icon {
+      width: 40px; height: 40px;
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      background: rgba(0,255,225,0.08);
+      flex-shrink: 0;
+      font-size: 18px;
+    }
+
+    .card-body { flex: 1; min-width: 0; }
+    .card-title { font-family: var(--sans); font-size: 14px; font-weight: 700; color: #fff; margin-bottom: 3px; }
+    .card-url   { font-size: 11px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+    .card-arrow { color: var(--muted); font-size: 16px; transition: transform .2s, color .2s; }
+    .link-card:hover .card-arrow { transform: translateX(4px); color: var(--card-accent, var(--accent)); }
+
+    /* ── Topics / Tags ── */
+    .tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 72px;
+      animation: fadeUp .8s .5s ease both;
+    }
+
+    .tag {
+      font-size: 11px;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      padding: 6px 14px;
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 2px;
+      color: var(--muted);
+      transition: border-color .2s, color .2s;
+    }
+    .tag:hover { border-color: var(--accent); color: var(--accent); }
+
+    /* ── Stats row ── */
+    .stats {
+      display: flex;
+      justify-content: center;
+      gap: 48px;
+      flex-wrap: wrap;
+      margin-bottom: 72px;
+      animation: fadeUp .8s .55s ease both;
+    }
+
+    .stat { text-align: center; }
+    .stat-val { font-family: var(--sans); font-size: 2rem; font-weight: 800; color: var(--accent); display: block; line-height: 1; }
+    .stat-lbl { font-size: 10px; letter-spacing: .2em; color: var(--muted); text-transform: uppercase; margin-top: 4px; }
+
+    /* ── Footer ── */
+    footer {
+      border-top: 1px solid rgba(255,255,255,0.06);
+      padding: 32px 0;
+      text-align: center;
+      font-size: 11px;
+      color: var(--muted);
+      letter-spacing: .1em;
+      animation: fadeIn 1s .6s ease both;
+    }
+
+    footer span { color: var(--accent2); }
+
+    /* ── Animations ── */
+    @keyframes fadeIn  { from { opacity: 0; } to { opacity: 1; } }
+    @keyframes fadeUp  { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+    /* ── Responsive ── */
+    @media (max-width: 520px) {
+      header { padding: 56px 0 40px; }
+      .stats { gap: 28px; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="grid-bg"></div>
+<div class="orb orb-1"></div>
+<div class="orb orb-2"></div>
+<div class="orb orb-3"></div>
+
+<div class="wrapper">
+
+  <!-- ── Hero ── -->
+  <header>
+    <div class="badge">[ Information Security ]</div>
+
+    <div class="logo-wrap">
+      <div class="logo-icon">
+        <!-- Shield + hex logo -->
+        <svg viewBox="0 0 56 56" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <polygon points="28,4 52,14 52,32 28,52 4,32 4,14" fill="none" stroke="#00ffe1" stroke-width="1.5" opacity=".4"/>
+          <polygon points="28,10 46,18 46,32 28,46 10,32 10,18" fill="none" stroke="#00ffe1" stroke-width="1" opacity=".3"/>
+          <path d="M28 14 L38 20 L38 32 L28 42 L18 32 L18 20 Z" fill="rgba(0,255,225,0.07)" stroke="#00ffe1" stroke-width="1.5"/>
+          <path d="M23 28 L26.5 31.5 L33 24" stroke="#00ffe1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <circle cx="28" cy="28" r="3" fill="#00ffe1" opacity=".6"/>
+          <!-- Corner accents -->
+          <line x1="4" y1="14" x2="8" y2="14" stroke="#ff3c6e" stroke-width="2"/>
+          <line x1="4" y1="14" x2="4" y2="18" stroke="#ff3c6e" stroke-width="2"/>
+          <line x1="52" y1="14" x2="48" y2="14" stroke="#ff3c6e" stroke-width="2"/>
+          <line x1="52" y1="14" x2="52" y2="18" stroke="#ff3c6e" stroke-width="2"/>
+        </svg>
+      </div>
+      <h1>HackZenX</h1>
+    </div>
+
+    <p class="tagline">Offensive &amp; Defensive Security · Research · Education</p>
+  </header>
+
+  <!-- ── Terminal ── -->
+  <div class="terminal">
+    <div class="terminal-bar">
+      <span class="dot dot-r"></span>
+      <span class="dot dot-y"></span>
+      <span class="dot dot-g"></span>
+    </div>
+    <p><span class="prompt">~/hackzenx $</span> <span class="cmd">whoami</span></p>
+    <p class="out">Security researcher | CTF player | Red team enthusiast</p>
+    <p><span class="prompt">~/hackzenx $</span> <span class="cmd">cat mission.txt</span></p>
+    <p class="out">Demystifying cybersecurity through hands-on research,</p>
+    <p class="out">ethical hacking, and open knowledge sharing.</p>
+    <p><span class="prompt">~/hackzenx $</span> <span class="cursor"></span></p>
+  </div>
+
+  <!-- ── Links ── -->
+  <p class="section-label">// Connect</p>
+  <div class="links-grid">
+
+    <a href="https://hackzenx.com" target="_blank" rel="noopener" class="link-card website">
+      <div class="card-icon">🌐</div>
+      <div class="card-body">
+        <div class="card-title">Website</div>
+        <div class="card-url">hackzenx.com</div>
+      </div>
+      <span class="card-arrow">→</span>
+    </a>
+
+    <a href="https://instagram.com/hackzenx" target="_blank" rel="noopener" class="link-card instagram">
+      <div class="card-icon">📸</div>
+      <div class="card-body">
+        <div class="card-title">Instagram</div>
+        <div class="card-url">instagram.com/hackzenx</div>
+      </div>
+      <span class="card-arrow">→</span>
+    </a>
+
+    <a href="https://linkedin.com/in/chennu-manoj-maheshwar-reddy-480151184" target="_blank" rel="noopener" class="link-card linkedin">
+      <div class="card-icon">💼</div>
+      <div class="card-body">
+        <div class="card-title">LinkedIn</div>
+        <div class="card-url">Chennu Manoj Maheshwar Reddy</div>
+      </div>
+      <span class="card-arrow">→</span>
+    </a>
+
+  </div>
+
+  <!-- ── Stats ── -->
+  <p class="section-label">// Focus Areas</p>
+  <div class="stats">
+    <div class="stat"><span class="stat-val">CTF</span><span class="stat-lbl">Competitions</span></div>
+    <div class="stat"><span class="stat-val">Red</span><span class="stat-lbl">Team Ops</span></div>
+    <div class="stat"><span class="stat-val">OSINT</span><span class="stat-lbl">Intelligence</span></div>
+    <div class="stat"><span class="stat-val">Web</span><span class="stat-lbl">App Security</span></div>
+  </div>
+
+  <!-- ── Tags ── -->
+  <p class="section-label">// Topics</p>
+  <div class="tags">
+    <span class="tag">Penetration Testing</span>
+    <span class="tag">Network Security</span>
+    <span class="tag">Malware Analysis</span>
+    <span class="tag">Reverse Engineering</span>
+    <span class="tag">Web Exploitation</span>
+    <span class="tag">Cryptography</span>
+    <span class="tag">OSINT</span>
+    <span class="tag">Social Engineering</span>
+    <span class="tag">Incident Response</span>
+    <span class="tag">Threat Intelligence</span>
+  </div>
+
+  <!-- ── Footer ── -->
+  <footer>
+    <p>© 2025 HackZenX · Built with <span>♥</span> &amp; curiosity · Stay ethical, hack responsibly.</p>
+    <p style="margin-top:8px; opacity:.5;">[ security is a mindset, not a product ]</p>
+  </footer>
+
+</div><!-- /wrapper -->
+
+</body>
+</html>
