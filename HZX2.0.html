@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>HackZenX | Information Security</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Share+Tech+Mono&family=Rajdhani:wght@300;400;600;700&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --cyan:#00fff2;--pink:#ff0066;--yellow:#ffe600;--green:#00ff88;
+  --bg:#02040a;--surface:rgba(0,255,242,0.04);--border:rgba(0,255,242,0.12);
+  --mono:'Share Tech Mono',monospace;--display:'Orbitron',sans-serif;--body:'Rajdhani',sans-serif;
+}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:#b0d0d8;font-family:var(--body);overflow-x:hidden;min-height:100vh;cursor:none}
+
+/* ── Custom Cursor ── */
+.cursor{position:fixed;width:12px;height:12px;border:2px solid var(--cyan);border-radius:50%;pointer-events:none;z-index:9999;transform:translate(-50%,-50%);transition:transform .1s,background .2s;mix-blend-mode:difference}
+.cursor-trail{position:fixed;width:32px;height:32px;border:1px solid rgba(0,255,242,0.3);border-radius:50%;pointer-events:none;z-index:9998;transform:translate(-50%,-50%);transition:left .12s,top .12s}
+
+/* ── Matrix Canvas ── */
+#matrix{position:fixed;inset:0;z-index:0;opacity:.18}
+
+/* ── Scanlines ── */
+.scanlines{position:fixed;inset:0;z-index:2;pointer-events:none;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,.15) 2px,rgba(0,0,0,.15) 4px)}
+
+/* ── Vignette ── */
+.vignette{position:fixed;inset:0;z-index:2;pointer-events:none;background:radial-gradient(ellipse at center,transparent 50%,rgba(2,4,10,.8) 100%)}
+
+/* ── Particles canvas ── */
+#particles{position:fixed;inset:0;z-index:1;pointer-events:none}
+
+/* ── Layout ── */
+.page{position:relative;z-index:10;max-width:960px;margin:0 auto;padding:0 28px}
+
+/* ── NAV ── */
+nav{display:flex;justify-content:space-between;align-items:center;padding:28px 0;border-bottom:1px solid var(--border);animation:fadeIn .6s ease both}
+.nav-logo{font-family:var(--display);font-size:13px;font-weight:700;color:var(--cyan);letter-spacing:.2em}
+.nav-links{display:flex;gap:28px}
+.nav-links a{font-size:11px;letter-spacing:.2em;color:#5a8090;text-decoration:none;text-transform:uppercase;transition:color .2s;position:relative}
+.nav-links a::after{content:'';position:absolute;bottom:-4px;left:0;width:0;height:1px;background:var(--cyan);transition:width .3s}
+.nav-links a:hover{color:var(--cyan)}
+.nav-links a:hover::after{width:100%}
+.nav-status{display:flex;align-items:center;gap:7px;font-size:10px;letter-spacing:.15em;color:#3a6070}
+.status-dot{width:7px;height:7px;border-radius:50%;background:var(--green);box-shadow:0 0 8px var(--green);animation:pulse 2s infinite}
+
+/* ── HERO ── */
+.hero{padding:80px 0 60px;text-align:center;position:relative}
+
+.hero-badge{display:inline-flex;align-items:center;gap:8px;font-size:10px;letter-spacing:.3em;text-transform:uppercase;color:var(--cyan);border:1px solid rgba(0,255,242,0.25);padding:6px 16px;border-radius:0;margin-bottom:40px;position:relative;overflow:hidden;animation:fadeIn .8s .2s ease both}
+.hero-badge::before{content:'';position:absolute;left:-100%;top:0;width:100%;height:100%;background:linear-gradient(90deg,transparent,rgba(0,255,242,0.1),transparent);animation:shimmer 3s infinite}
+.hero-badge-dot{width:6px;height:6px;border-radius:50%;background:var(--green);box-shadow:0 0 6px var(--green)}
+
+.glitch-wrap{position:relative;display:inline-block;margin-bottom:12px;animation:fadeIn .8s .3s ease both}
+h1{font-family:var(--display);font-size:clamp(3rem,8vw,5.5rem);font-weight:900;letter-spacing:.05em;color:#fff;position:relative;display:inline-block;text-shadow:0 0 40px rgba(0,255,242,0.3)}
+h1::before,h1::after{content:attr(data-text);position:absolute;top:0;left:0;width:100%;height:100%}
+h1::before{color:var(--pink);clip-path:polygon(0 0,100% 0,100% 35%,0 35%);animation:glitch1 4s infinite;text-shadow:none}
+h1::after{color:var(--cyan);clip-path:polygon(0 65%,100% 65%,100% 100%,0 100%);animation:glitch2 4s infinite;text-shadow:none}
+
+.sub-title{font-family:var(--display);font-size:clamp(.9rem,2vw,1.2rem);font-weight:400;letter-spacing:.35em;color:var(--pink);text-transform:uppercase;margin-bottom:16px;animation:fadeIn .8s .4s ease both}
+
+.hero-desc{font-size:14px;letter-spacing:.05em;color:#4a7080;max-width:420px;margin:0 auto 48px;line-height:1.8;animation:fadeIn .8s .5s ease both}
+
+/* ── Typing terminal ── */
+.hero-terminal{background:rgba(0,10,15,0.8);border:1px solid var(--border);max-width:580px;margin:0 auto 80px;text-align:left;backdrop-filter:blur(10px);position:relative;animation:fadeUp .9s .6s ease both}
+.hero-terminal::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--cyan),transparent)}
+.hero-terminal::after{content:'';position:absolute;bottom:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--pink),transparent)}
+.t-bar{display:flex;align-items:center;gap:8px;padding:10px 16px;border-bottom:1px solid var(--border);background:rgba(0,255,242,0.03)}
+.t-dots{display:flex;gap:6px}
+.td{width:10px;height:10px;border-radius:50%}
+.td-r{background:#ff5f57}.td-y{background:#febc2e}.td-g{background:#28c840}
+.t-title{flex:1;text-align:center;font-size:10px;letter-spacing:.2em;color:#3a6070}
+.t-body{padding:20px 20px 16px;font-family:var(--mono);font-size:12px;line-height:2}
+.t-line{display:block}
+.t-prompt{color:var(--pink)}
+.t-path{color:var(--cyan)}
+.t-cmd{color:#fff}
+.t-out{color:#5a8090;padding-left:0}
+.t-cursor{display:inline-block;width:8px;height:13px;background:var(--cyan);vertical-align:middle;animation:blink 1s step-end infinite;margin-left:2px}
+
+/* ── Section label ── */
+.sec-label{font-size:10px;letter-spacing:.35em;color:var(--cyan);text-transform:uppercase;display:flex;align-items:center;gap:12px;margin-bottom:28px}
+.sec-label span{opacity:.4}
+.sec-label::before{content:'//';color:var(--pink);margin-right:4px}
+.sec-label::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,var(--border),transparent)}
+
+/* ── LINKS ── */
+.links{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:2px;margin-bottom:80px;animation:fadeUp .8s .7s ease both;border:1px solid var(--border)}
+
+.link-card{display:flex;align-items:center;gap:18px;background:rgba(0,10,14,.8);padding:22px 24px;text-decoration:none;color:var(--body);transition:background .25s;position:relative;overflow:hidden;border-right:1px solid var(--border)}
+.link-card:last-child{border-right:none}
+.link-card::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,var(--lc,var(--cyan)) 0%,transparent 60%);opacity:0;transition:opacity .3s}
+.link-card:hover{background:rgba(0,255,242,0.04)}
+.link-card:hover::before{opacity:.06}
+
+.link-card.instagram{--lc:#e1306c}
+.link-card.linkedin{--lc:#0a66c2}
+.link-card.website{--lc:var(--cyan)}
+
+.lc-icon{width:44px;height:44px;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;position:relative;transition:border-color .3s}
+.link-card:hover .lc-icon{border-color:var(--lc,var(--cyan))}
+
+.lc-body{flex:1;min-width:0}
+.lc-title{font-family:var(--display);font-size:11px;font-weight:700;color:#fff;letter-spacing:.15em;margin-bottom:4px;text-transform:uppercase}
+.lc-url{font-family:var(--mono);font-size:10px;color:#3a6070;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+.lc-arrow{font-size:18px;color:#2a5060;transition:transform .25s,color .25s}
+.link-card:hover .lc-arrow{transform:translateX(5px);color:var(--lc,var(--cyan))}
+
+/* ── SKILLS grid ── */
+.skills-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:2px;margin-bottom:80px;border:1px solid var(--border);animation:fadeUp .8s .75s ease both}
+
+.skill-cell{padding:18px 16px;background:rgba(0,10,14,.8);text-align:center;position:relative;overflow:hidden;transition:background .25s;cursor:default}
+.skill-cell::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--sc,var(--cyan));transform:scaleX(0);transition:transform .3s;transform-origin:left}
+.skill-cell:hover{background:rgba(0,255,242,0.04)}
+.skill-cell:hover::before{transform:scaleX(1)}
+.skill-icon{font-size:22px;margin-bottom:8px;display:block}
+.skill-name{font-family:var(--mono);font-size:10px;letter-spacing:.12em;color:#4a7080;text-transform:uppercase;transition:color .25s}
+.skill-cell:hover .skill-name{color:var(--sc,var(--cyan))}
+
+/* ── STATS ── */
+.stats-row{display:flex;justify-content:center;gap:0;margin-bottom:80px;border:1px solid var(--border);animation:fadeUp .8s .8s ease both}
+.stat-box{flex:1;padding:32px 20px;text-align:center;border-right:1px solid var(--border);position:relative;overflow:hidden}
+.stat-box:last-child{border-right:none}
+.stat-box::after{content:'';position:absolute;inset:0;background:var(--cyan);opacity:0;transition:opacity .3s}
+.stat-box:hover::after{opacity:.03}
+.stat-num{font-family:var(--display);font-size:1.9rem;font-weight:900;color:var(--cyan);display:block;line-height:1;text-shadow:0 0 20px rgba(0,255,242,.4)}
+.stat-lbl{font-size:9px;letter-spacing:.25em;color:#3a6070;text-transform:uppercase;margin-top:6px;display:block}
+
+/* ── CERTIFICATIONS / BORDER DECO ── */
+.cert-strip{border:1px solid var(--border);padding:0;margin-bottom:80px;display:flex;overflow:hidden;animation:fadeUp .8s .85s ease both}
+.cert-label{background:rgba(0,255,242,0.06);border-right:1px solid var(--border);padding:14px 20px;font-family:var(--display);font-size:9px;letter-spacing:.25em;color:var(--cyan);writing-mode:vertical-rl;text-transform:uppercase;white-space:nowrap}
+.cert-scroll{flex:1;display:flex;align-items:center;padding:0 24px;overflow:hidden;position:relative}
+.cert-scroll::before,.cert-scroll::after{content:'';position:absolute;top:0;bottom:0;width:40px;z-index:2}
+.cert-scroll::before{left:0;background:linear-gradient(90deg,var(--bg),transparent)}
+.cert-scroll::after{right:0;background:linear-gradient(-90deg,var(--bg),transparent)}
+.cert-inner{display:flex;gap:32px;animation:ticker 18s linear infinite;white-space:nowrap}
+.cert-item{font-family:var(--mono);font-size:11px;color:#3a6070;letter-spacing:.1em;flex-shrink:0}
+.cert-item span{color:var(--pink);margin-right:8px}
+
+/* ── FOOTER ── */
+footer{border-top:1px solid var(--border);padding:40px 0;text-align:center;animation:fadeIn 1s .9s ease both}
+.footer-logo{font-family:var(--display);font-size:18px;font-weight:900;color:var(--cyan);letter-spacing:.2em;margin-bottom:12px;text-shadow:0 0 20px rgba(0,255,242,.3)}
+.footer-sub{font-family:var(--mono);font-size:10px;color:#2a4050;letter-spacing:.2em;text-transform:uppercase;margin-bottom:24px}
+.footer-links{display:flex;justify-content:center;gap:24px;margin-bottom:24px}
+.footer-links a{font-size:10px;letter-spacing:.2em;color:#3a5060;text-decoration:none;text-transform:uppercase;transition:color .2s}
+.footer-links a:hover{color:var(--cyan)}
+.footer-copy{font-size:10px;color:#1a3040;letter-spacing:.15em}
+.footer-copy em{color:var(--pink);font-style:normal}
+
+/* ── Corner decorations ── */
+.corner-deco{position:fixed;z-index:5;pointer-events:none}
+.corner-deco.tl{top:20px;left:20px}
+.corner-deco.tr{top:20px;right:20px}
+.corner-deco.bl{bottom:20px;left:20px}
+.corner-deco.br{bottom:20px;right:20px}
+.corner-deco svg{width:30px;height:30px;opacity:.25}
+
+/* ── Hex decoration ── */
+.hex-row{display:flex;justify-content:center;gap:4px;margin-bottom:16px}
+.hex{width:14px;height:16px;background:rgba(0,255,242,0.06);clip-path:polygon(50% 0%,100% 25%,100% 75%,50% 100%,0% 75%,0% 25%);animation:hexPulse 3s ease infinite}
+.hex:nth-child(2){animation-delay:.3s}.hex:nth-child(3){animation-delay:.6s}.hex:nth-child(4){animation-delay:.9s}.hex:nth-child(5){animation-delay:1.2s}
+
+/* ── Animations ── */
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
+@keyframes blink{50%{opacity:0}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+@keyframes shimmer{0%{left:-100%}100%{left:200%}}
+@keyframes ticker{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+@keyframes hexPulse{0%,100%{background:rgba(0,255,242,0.06)}50%{background:rgba(0,255,242,0.18)}}
+
+@keyframes glitch1{
+  0%,95%,100%{transform:translate(0)}
+  96%{transform:translate(-3px,1px);opacity:.8}
+  97%{transform:translate(3px,-1px);opacity:.9}
+  98%{transform:translate(-2px,2px);opacity:.8}
+  99%{transform:translate(0)}
+}
+@keyframes glitch2{
+  0%,93%,100%{transform:translate(0)}
+  94%{transform:translate(3px,-1px);opacity:.8}
+  95%{transform:translate(-3px,1px);opacity:.9}
+  96%{transform:translate(2px,-2px);opacity:.8}
+  97%{transform:translate(0)}
+}
+
+/* ── Responsive ── */
+@media(max-width:600px){
+  .nav-links{display:none}
+  .stats-row{flex-wrap:wrap}
+  .stat-box{border-right:none;border-bottom:1px solid var(--border)}
+  .links{grid-template-columns:1fr}
+  .link-card{border-right:none;border-bottom:1px solid var(--border)}
+}
+</style>
+</head>
+<body>
+
+<!-- Custom cursor -->
+<div class="cursor" id="cursor"></div>
+<div class="cursor-trail" id="cursorTrail"></div>
+
+<!-- Matrix rain -->
+<canvas id="matrix"></canvas>
+
+<!-- Particles -->
+<canvas id="particles"></canvas>
+
+<!-- Overlays -->
+<div class="scanlines"></div>
+<div class="vignette"></div>
+
+<!-- Corner decorations -->
+<div class="corner-deco tl"><svg viewBox="0 0 30 30" fill="none"><path d="M0 30 L0 0 L30 0" stroke="#00fff2" stroke-width="1.5"/></svg></div>
+<div class="corner-deco tr"><svg viewBox="0 0 30 30" fill="none"><path d="M0 0 L30 0 L30 30" stroke="#00fff2" stroke-width="1.5"/></svg></div>
+<div class="corner-deco bl"><svg viewBox="0 0 30 30" fill="none"><path d="M0 0 L0 30 L30 30" stroke="#00fff2" stroke-width="1.5"/></svg></div>
+<div class="corner-deco br"><svg viewBox="0 0 30 30" fill="none"><path d="M30 0 L30 30 L0 30" stroke="#00fff2" stroke-width="1.5"/></svg></div>
+
+<div class="page">
+
+  <!-- NAV -->
+  <nav>
+    <div class="nav-logo">HZX_v2.0</div>
+    <div class="nav-links">
+      <a href="#connect">Connect</a>
+      <a href="#skills">Skills</a>
+      <a href="#about">About</a>
+    </div>
+    <div class="nav-status"><span class="status-dot"></span>ONLINE · SECURE</div>
+  </nav>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-badge"><span class="hero-badge-dot"></span>Information Security Research<span class="hero-badge-dot"></span></div>
+
+    <div class="glitch-wrap">
+      <h1 data-text="HACKZENX">HACKZENX</h1>
+    </div>
+
+    <div class="sub-title">Offensive · Defensive · Intelligence</div>
+    <p class="hero-desc">Demystifying cybersecurity through hands-on research, ethical hacking, and open knowledge sharing.</p>
+
+    <!-- Terminal -->
+    <div class="hero-terminal">
+      <div class="t-bar">
+        <div class="t-dots"><span class="td td-r"></span><span class="td td-y"></span><span class="td td-g"></span></div>
+        <div class="t-title">root@hackzenx:~</div>
+      </div>
+      <div class="t-body" id="terminal-body">
+        <span class="t-line"><span class="t-prompt">┌──(</span><span class="t-path">root㉿hackzenx</span><span class="t-prompt">)-[~]</span></span>
+        <span class="t-line"><span class="t-prompt">└─$ </span><span class="t-cmd" id="typed-cmd"></span><span class="t-cursor" id="tcursor"></span></span>
+      </div>
+    </div>
+  </section>
+
+  <!-- LINKS -->
+  <section id="connect">
+    <div class="sec-label">Channels</div>
+    <div class="links">
+      <a href="https://hackzenx.com" target="_blank" rel="noopener" class="link-card website">
+        <div class="lc-icon">🌐</div>
+        <div class="lc-body"><div class="lc-title">Website</div><div class="lc-url">hackzenx.com</div></div>
+        <span class="lc-arrow">→</span>
+      </a>
+      <a href="https://instagram.com/hackzenx" target="_blank" rel="noopener" class="link-card instagram">
+        <div class="lc-icon">📸</div>
+        <div class="lc-body"><div class="lc-title">Instagram</div><div class="lc-url">@hackzenx</div></div>
+        <span class="lc-arrow">→</span>
+      </a>
+      <a href="https://linkedin.com/in/chennu-manoj-maheshwar-reddy-480151184" target="_blank" rel="noopener" class="link-card linkedin">
+        <div class="lc-icon">💼</div>
+        <div class="lc-body"><div class="lc-title">LinkedIn</div><div class="lc-url">Chennu Manoj Maheshwar Reddy</div></div>
+        <span class="lc-arrow">→</span>
+      </a>
+    </div>
+  </section>
+
+  <!-- STATS -->
+  <div class="stats-row">
+    <div class="stat-box"><span class="stat-num" data-target="247">0</span><span class="stat-lbl">CVEs Studied</span></div>
+    <div class="stat-box"><span class="stat-num" data-target="89">0</span><span class="stat-lbl">CTF Solves</span></div>
+    <div class="stat-box"><span class="stat-num" data-target="14">0</span><span class="stat-lbl">Tools Built</span></div>
+    <div class="stat-box"><span class="stat-num" data-target="100">0</span><span class="stat-lbl">% Ethical</span></div>
+  </div>
+
+  <!-- SKILLS -->
+  <section id="skills">
+    <div class="sec-label">Arsenal</div>
+    <div class="skills-grid">
+      <div class="skill-cell" style="--sc:#ff0066"><span class="skill-icon">🎯</span><span class="skill-name">Pen Testing</span></div>
+      <div class="skill-cell" style="--sc:#00fff2"><span class="skill-icon">🕸️</span><span class="skill-name">Web Exploit</span></div>
+      <div class="skill-cell" style="--sc:#ffe600"><span class="skill-icon">🔍</span><span class="skill-name">OSINT</span></div>
+      <div class="skill-cell" style="--sc:#00ff88"><span class="skill-icon">🔐</span><span class="skill-name">Cryptography</span></div>
+      <div class="skill-cell" style="--sc:#ff0066"><span class="skill-icon">🦠</span><span class="skill-name">Malware Analysis</span></div>
+      <div class="skill-cell" style="--sc:#00fff2"><span class="skill-icon">⚙️</span><span class="skill-name">Rev. Engineering</span></div>
+      <div class="skill-cell" style="--sc:#ffe600"><span class="skill-icon">📡</span><span class="skill-name">Network Sec</span></div>
+      <div class="skill-cell" style="--sc:#00ff88"><span class="skill-icon">🛡️</span><span class="skill-name">Blue Team</span></div>
+      <div class="skill-cell" style="--sc:#ff0066"><span class="skill-icon">🤖</span><span class="skill-name">Automation</span></div>
+      <div class="skill-cell" style="--sc:#00fff2"><span class="skill-icon">🧬</span><span class="skill-name">Forensics</span></div>
+      <div class="skill-cell" style="--sc:#ffe600"><span class="skill-icon">☁️</span><span class="skill-name">Cloud Sec</span></div>
+      <div class="skill-cell" style="--sc:#00ff88"><span class="skill-icon">🧠</span><span class="skill-name">Threat Intel</span></div>
+    </div>
+  </section>
+
+  <!-- CERT TICKER -->
+  <div class="cert-strip">
+    <div class="cert-label">Focus Areas</div>
+    <div class="cert-scroll">
+      <div class="cert-inner">
+        <span class="cert-item"><span>▸</span>Penetration Testing</span>
+        <span class="cert-item"><span>▸</span>Red Team Operations</span>
+        <span class="cert-item"><span>▸</span>Vulnerability Research</span>
+        <span class="cert-item"><span>▸</span>Social Engineering</span>
+        <span class="cert-item"><span>▸</span>Incident Response</span>
+        <span class="cert-item"><span>▸</span>Zero-Day Research</span>
+        <span class="cert-item"><span>▸</span>CTF Competitions</span>
+        <span class="cert-item"><span>▸</span>Binary Exploitation</span>
+        <span class="cert-item"><span>▸</span>Penetration Testing</span>
+        <span class="cert-item"><span>▸</span>Red Team Operations</span>
+        <span class="cert-item"><span>▸</span>Vulnerability Research</span>
+        <span class="cert-item"><span>▸</span>Social Engineering</span>
+        <span class="cert-item"><span>▸</span>Incident Response</span>
+        <span class="cert-item"><span>▸</span>Zero-Day Research</span>
+        <span class="cert-item"><span>▸</span>CTF Competitions</span>
+        <span class="cert-item"><span>▸</span>Binary Exploitation</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer id="about">
+    <div class="hex-row"><div class="hex"></div><div class="hex"></div><div class="hex"></div><div class="hex"></div><div class="hex"></div></div>
+    <div class="footer-logo">HACKZENX</div>
+    <div class="footer-sub">Information Security · Est. 2024</div>
+    <div class="footer-links">
+      <a href="https://hackzenx.com">Website</a>
+      <a href="https://instagram.com/hackzenx">Instagram</a>
+      <a href="https://linkedin.com/in/chennu-manoj-maheshwar-reddy-480151184">LinkedIn</a>
+    </div>
+    <div class="footer-copy">© 2025 HackZenX · Stay ethical · <em>hack the planet</em></div>
+  </footer>
+
+</div><!-- /page -->
+
+<script>
+/* ── Cursor ── */
+const cur=document.getElementById('cursor'),trail=document.getElementById('cursorTrail');
+let mx=0,my=0;
+document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;cur.style.left=mx+'px';cur.style.top=my+'px';setTimeout(()=>{trail.style.left=mx+'px';trail.style.top=my+'px'},80)});
+document.querySelectorAll('a,.link-card,.skill-cell').forEach(el=>{
+  el.addEventListener('mouseenter',()=>{cur.style.transform='translate(-50%,-50%) scale(2.5)';cur.style.background='rgba(0,255,242,0.15)'});
+  el.addEventListener('mouseleave',()=>{cur.style.transform='translate(-50%,-50%) scale(1)';cur.style.background='transparent'});
+});
+
+/* ── Matrix Rain ── */
+(function(){
+  const c=document.getElementById('matrix');
+  const ctx=c.getContext('2d');
+  function resize(){c.width=window.innerWidth;c.height=window.innerHeight}
+  resize();window.addEventListener('resize',resize);
+  const chars='アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲン0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ#@$%&';
+  const cols=Math.floor(window.innerWidth/18);
+  const drops=Array(cols).fill(1);
+  function draw(){
+    ctx.fillStyle='rgba(2,4,10,0.05)';
+    ctx.fillRect(0,0,c.width,c.height);
+    ctx.font='14px "Share Tech Mono"';
+    drops.forEach((y,i)=>{
+      const ch=chars[Math.floor(Math.random()*chars.length)];
+      const bright=Math.random()>.97;
+      ctx.fillStyle=bright?'#fff':( Math.random()>.7?'rgba(0,255,242,0.9)':'rgba(0,255,242,0.35)');
+      ctx.fillText(ch,i*18,y*18);
+      if(y*18>c.height&&Math.random()>.975)drops[i]=0;
+      drops[i]++;
+    });
+  }
+  setInterval(draw,45);
+})();
+
+/* ── Floating Particles ── */
+(function(){
+  const c=document.getElementById('particles');
+  const ctx=c.getContext('2d');
+  function resize(){c.width=window.innerWidth;c.height=window.innerHeight}
+  resize();window.addEventListener('resize',resize);
+  const pts=Array.from({length:60},()=>({
+    x:Math.random()*window.innerWidth,y:Math.random()*window.innerHeight,
+    vx:(Math.random()-.5)*.4,vy:(Math.random()-.5)*.4,
+    r:Math.random()*1.5+.5,a:Math.random()
+  }));
+  function draw(){
+    ctx.clearRect(0,0,c.width,c.height);
+    pts.forEach(p=>{
+      p.x+=p.vx;p.y+=p.vy;
+      if(p.x<0||p.x>c.width)p.vx*=-1;
+      if(p.y<0||p.y>c.height)p.vy*=-1;
+      ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+      ctx.fillStyle=`rgba(0,255,242,${p.a*.4})`;ctx.fill();
+    });
+    // Lines
+    for(let i=0;i<pts.length;i++)for(let j=i+1;j<pts.length;j++){
+      const dx=pts[i].x-pts[j].x,dy=pts[i].y-pts[j].y,dist=Math.sqrt(dx*dx+dy*dy);
+      if(dist<120){ctx.beginPath();ctx.moveTo(pts[i].x,pts[i].y);ctx.lineTo(pts[j].x,pts[j].y);ctx.strokeStyle=`rgba(0,255,242,${(1-dist/120)*.08})`;ctx.stroke()}
+    }
+    requestAnimationFrame(draw);
+  }
+  draw();
+})();
+
+/* ── Typing terminal ── */
+(function(){
+  const lines=[
+    {cmd:'nmap -sV -p- target.hackzenx.com',delay:800},
+    {cmd:'whoami',out:'root · ethical_hacker · researcher',delay:2200},
+    {cmd:'cat /etc/hackzenx/mission',out:'// Secure the digital world, one vuln at a time.',delay:1800},
+  ];
+  const cmdEl=document.getElementById('typed-cmd');
+  const curEl=document.getElementById('tcursor');
+  const body=document.getElementById('terminal-body');
+  let li=0;
+  function typeLine(){
+    if(li>=lines.length){li=0;body.innerHTML='<span class="t-line"><span class="t-prompt">┌──(</span><span class="t-path">root㉿hackzenx</span><span class="t-prompt">)-[~]</span></span><span class="t-line"><span class="t-prompt">└─$ </span><span class="t-cmd" id="typed-cmd"></span><span class="t-cursor" id="tcursor"></span></span>';setTimeout(typeLine,600);return}
+    const l=lines[li];let i=0;
+    const newCmd=document.getElementById('typed-cmd');
+    const interval=setInterval(()=>{
+      newCmd.textContent=l.cmd.slice(0,++i);
+      if(i>=l.cmd.length){
+        clearInterval(interval);
+        if(l.out){
+          setTimeout(()=>{
+            const out=document.createElement('span');
+            out.className='t-line t-out';out.textContent=l.out;
+            body.insertBefore(out,body.lastChild);
+          },300);
+        }
+        li++;setTimeout(typeLine,l.delay);
+      }
+    },55);
+  }
+  setTimeout(typeLine,1200);
+})();
+
+/* ── Counter animation ── */
+document.querySelectorAll('[data-target]').forEach(el=>{
+  const target=+el.dataset.target;
+  const obs=new IntersectionObserver(entries=>{
+    if(entries[0].isIntersecting){
+      let n=0;const step=Math.ceil(target/50);
+      const t=setInterval(()=>{n=Math.min(n+step,target);el.textContent=n+(target===100?'%':'');if(n>=target)clearInterval(t)},30);
+      obs.disconnect();
+    }
+  },{threshold:.5});
+  obs.observe(el);
+});
+</script>
+</body>
+</html>
